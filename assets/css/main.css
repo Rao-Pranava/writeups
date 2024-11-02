@@ -1672,8 +1672,8 @@ input, select, textarea {
 		input[type="reset"].style1,
 		button.style1,
 		.button.style1 {
-			background: #e97770 url("images/overlay.png");
-			color: #fff;
+			background: #fff url("images/overlay.png");
+			color: #000;
 		}
 
 			input[type="button"].style1:hover,
@@ -1681,7 +1681,7 @@ input, select, textarea {
 			input[type="reset"].style1:hover,
 			button.style1:hover,
 			.button.style1:hover {
-				background-color: #f98780;
+				background-color: #ff0000;
 			}
 
 			input[type="button"].style1:active,
@@ -2026,16 +2026,16 @@ input, select, textarea {
 			}
 
 		.wrapper.style3 {
-			background: #f3f3f3 url("images/overlay.png");
+			background: #000 url("images/overlay.png");
 		}
 
 			.wrapper.style3 .title {
-				background: #f3f3f3 url("images/overlay.png");
-				color: #484d55;
+				background: #000 url("images/overlay.png");
+				color: #767677;
 			}
 
 			.wrapper.style3 .image {
-				border: solid 10px #fff;
+				border: solid 5px #fff;
 			}
 
 /* Page Wrapper */
@@ -2261,7 +2261,7 @@ input, select, textarea {
 	}
 
 		#highlights .highlight h3 {
-			color: #e97770;
+			color: white;
 			margin: 0 0 0.75em 0;
 			font-size: 1.15em;
 			letter-spacing: 0.05em;
