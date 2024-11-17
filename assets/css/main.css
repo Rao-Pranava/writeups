@@ -163,7 +163,7 @@ input, select, textarea {
 	}
 
 	.nobr {
-		white-space: nowrap;
+		white-space: no;
 	}
 
 	br.clear {
@@ -2011,6 +2011,10 @@ input, select, textarea {
 				background: black url("images/overlay.png");
 				color: #fff;
 			}
+
+			.wrapper.style1 p.style2 a.Hacker {
+				color: rgb(0, 255, 0) !important;
+			}			
 
 			.wrapper.style1 h1, .wrapper.style1 h2, .wrapper.style1 h3, .wrapper.style1 h4, .wrapper.style1 h5, .wrapper.style1 h6, .wrapper.style1 strong, .wrapper.style1 b, .wrapper.style1 a {
 				color: #fff;
