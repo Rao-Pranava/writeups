@@ -180,7 +180,6 @@ input, select, textarea {
 		margin: 0 auto;
 		max-width: 100%;
 		width: 68em;
-		color: black;
 	}
 
 		@media screen and (max-width: 1680px) {
@@ -2003,7 +2002,7 @@ input, select, textarea {
 			}
 
 		.wrapper.style1 {
-			background: #e5e5e5 url("images/shadow.png");
+			background: #747272 url("images/shadow.png");
 			color: #eee;
 			color: rgba(255, 255, 255, 0.75);
 		}
